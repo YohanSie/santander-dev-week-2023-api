@@ -1,5 +1,8 @@
 package me.dio.controller.exception;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -27,9 +30,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Throwable.class)
     public ResponseEntity<String> handleUnexpectedException(Throwable unexpectedException) {
-        String message = "Unexpected server error.";
-        LOGGER.error(message, unexpectedException);
-        return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        unexpectedException.printStackTrace(pw);
+        String stackTrace = sw.toString();
+        LOGGER.error("Unexpected error: {}", stackTrace);
+        return new ResponseEntity<>("Error: " + unexpectedException.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
 
